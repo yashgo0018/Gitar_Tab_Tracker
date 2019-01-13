@@ -1,7 +1,7 @@
+const { register } = require("./controllers/AuthenticationController");
+const { registerPolicy } = require("./policies/AuthenticationControllerPolicy");
+const Joi = require("joi");
+
 module.exports = app => {
-  app.post("/register", (req, res) => {
-    res.send({
-      msg: "hello"
-    });
-  });
+  app.post("/register", registerPolicy, register);
 };
