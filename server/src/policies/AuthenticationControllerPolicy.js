@@ -19,22 +19,22 @@ module.exports = {
       switch (error.details[0].context.key) {
         case "fname":
         case "lname":
-          res.send({
+          res.status(400).send({
             error: "Name cannot contain numbers or spaces"
           });
           break;
         case "username":
-          res.send({
+          res.status(400).send({
             error: "Invalid Username"
           });
           break;
         case "email":
-          res.send({
+          res.status(400).send({
             error: "You Provided an Invalid Email"
           });
           break;
         case "password":
-          res.send({
+          res.status(400).send({
             error: `Your Password must:<br>
               1) Be 8 to 32 Character Long<br>
               2) Only contain alphabet and numbers
@@ -42,7 +42,7 @@ module.exports = {
           });
           break;
         default:
-          res.send({
+          res.status(400).send({
             error: "Invalid Data"
           });
       }
