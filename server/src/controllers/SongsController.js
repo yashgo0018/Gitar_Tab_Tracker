@@ -43,9 +43,9 @@ module.exports = {
   },
   async updateSong(req, res) {
     try {
-      const song = await Song.create(req.body, {
+      const song = await Song.update(req.body, {
         where: {
-          id: res.params.id
+          id: req.params.id
         }
       });
       res.send(req.body);

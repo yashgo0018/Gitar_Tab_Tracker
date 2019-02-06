@@ -7,7 +7,7 @@
         <v-layout row wrap>
           <v-flex xs6>
             <v-text-field
-              v-model="fname"
+              v-model="user.fname"
               :rules="[rules.required]"
               type="text"
               name="fname"
@@ -16,7 +16,7 @@
           </v-flex>
           <v-flex xs6>
             <v-text-field
-              v-model="lname"
+              v-model="user.lname"
               :rules="[rules.required]"
               type="text"
               name="lname"
@@ -25,7 +25,7 @@
           </v-flex>
           <v-flex xs12>
             <v-text-field
-              v-model="email"
+              v-model="user.email"
               :rules="[rules.required]"
               type="email"
               name="email"
@@ -34,7 +34,7 @@
           </v-flex>
           <v-flex xs12>
             <v-text-field
-              v-model="username"
+              v-model="user.username"
               :rules="[rules.required, rules.min]"
               type="text"
               name="username"
@@ -43,7 +43,7 @@
           </v-flex>
           <v-flex xm12>
             <v-text-field
-              v-model="password"
+              v-model="user.password"
               :append-icon="show1 ? 'visibility_off' : 'visibility'"
               :rules="[rules.required, rules.min]"
               :type="show1 ? 'text' : 'password'"
@@ -89,11 +89,13 @@ export default {
     return {
       show1: false,
       show2: false,
-      fname: "",
-      lname: "",
-      email: "",
-      username: "",
-      password: "",
+      user: {
+        fname: "",
+        lname: "",
+        email: "",
+        username: "",
+        password: ""
+      },
       password2: "",
       error: "",
       rules: {
@@ -112,15 +114,9 @@ export default {
   methods: {
     async formSubmit(e) {
       e.preventDefault();
-      if (this.password === this.password2) {
+      if (this.user.password === this.password2) {
         try {
-          const data = (await AuthenticationService.register({
-            fname: this.fname,
-            lname: this.lname,
-            email: this.email,
-            username: this.username,
-            password: this.password
-          })).data;
+          const data = (await AuthenticationService.register(this.user)).data;
           this.$store.dispatch("setToken", data.token);
           this.$cookies.set("auth-token", data.token, data.validity);
           this.$cookies.set("auth-user", data.user, data.validity);

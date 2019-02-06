@@ -22,6 +22,11 @@ export default new Router({
       component: () => import("@/views/GetSong")
     },
     {
+      path: "/song/:id/edit",
+      name: "Edit Song",
+      component: () => import("@/views/admin/updateSong")
+    },
+    {
       path: "/auth/login/",
       name: "login",
       component: () => import("@/views/auth/Login.vue"),

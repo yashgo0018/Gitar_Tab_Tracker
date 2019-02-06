@@ -10,6 +10,9 @@ export default {
   setSong(credentials) {
     return Api().post("song/add", credentials);
   },
+  updateSong(id, credentials) {
+    return Api().put(`song/${id}`, credentials);
+  },
   getSong(id) {
     return Api().get(`song/${id}`);
   }

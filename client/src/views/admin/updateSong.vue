@@ -1,12 +1,12 @@
 <template>
-  <fullpage>
+  <fullpage :search="false">
     <div class="display-4 font-weight-thin orange--text text--lighten-1 text-xs-center">Sign Up</div>
     <v-form>
       <v-container fluid>
         <v-layout row wrap>
           <v-flex xs6>
             <v-text-field
-              v-model="title"
+              v-model="song.title"
               :rules="[rules.required]"
               type="text"
               name="title"
@@ -15,7 +15,7 @@
           </v-flex>
           <v-flex xs6>
             <v-text-field
-              v-model="artist"
+              v-model="song.artist"
               :rules="[rules.required]"
               type="text"
               name="artist"
@@ -24,7 +24,7 @@
           </v-flex>
           <v-flex xs6>
             <v-text-field
-              v-model="genre"
+              v-model="song.genre"
               :rules="[rules.required]"
               type="text"
               name="genre"
@@ -33,7 +33,7 @@
           </v-flex>
           <v-flex xs6>
             <v-text-field
-              v-model="album"
+              v-model="song.album"
               :rules="[rules.required]"
               type="text"
               name="album"
@@ -42,7 +42,7 @@
           </v-flex>
           <v-flex xs6>
             <v-text-field
-              v-model="albumImageUrl"
+              v-model="song.albumImageUrl"
               :rules="[rules.required]"
               name="albumImageUrl"
               label="Album Image Url"
@@ -51,7 +51,7 @@
 
           <v-flex xs6>
             <v-text-field
-              v-model="youtubeVideoid"
+              v-model="song.youtubeVideoid"
               :rules="[rules.required]"
               name="youtubeVideoid"
               label="Youtube Video Id"
@@ -60,7 +60,7 @@
           <v-flex xs12>
             <v-textarea
               name="input-7-4"
-              v-model="lyrics"
+              v-model="song.lyrics"
               label="Lyrics"
               value="The Woodman set to work at once, and so sharp was his axe that the tree was soon chopped nearly through."
             ></v-textarea>
@@ -68,7 +68,7 @@
           <v-flex xs12>
             <v-textarea
               name="input-7-4"
-              v-model="tabs"
+              v-model="song.tab"
               label="Tabs"
               value="The Woodman set to work at once, and so sharp was his axe that the tree was soon chopped nearly through."
             ></v-textarea>
@@ -82,27 +82,20 @@
         </v-layout>
       </v-container>
     </v-form>
-    <div v-html="error"/>
+    <div v-html="err"/>
   </fullpage>
 </template>
 
 <script>
-import SongService from "@/services/SongService";
+import fullpage from "../../templates/fullpage";
+import SongService from "../../services/SongService";
 import authProtection from "@/utils/check-authenticated.js";
-import fullpage from "@/templates/fullpage";
+
 export default {
-  name: "register",
   data() {
     return {
-      title: "",
-      artist: "",
-      genre: "",
-      album: "",
-      lyrics: "",
-      tabs: "",
-      albumImageUrl: "",
-      youtubeVideoid: "",
-      error: "",
+      song: {},
+      err: "",
       rules: {
         required: value => !!value || "Required.",
         min: v => v.length >= 8 || "Min 8 characters"
@@ -112,30 +105,21 @@ export default {
   components: {
     fullpage
   },
-  mounted() {
+  async mounted() {
     authProtection(this);
+    try {
+      this.song = (await SongService.getSong(this.$route.params.id)).data;
+    } catch (err) {
+      this.err = "error";
+    }
   },
   methods: {
-    async formSubmit(e) {
-      e.preventDefault();
-      try {
-        await SongService.setSong({
-          title: this.title,
-          artist: this.artist,
-          genre: this.genre,
-          album: this.album,
-          albumImageUrl: this.albumImageUrl,
-          youtubeVideoid: this.youtubeVideoid,
-          lyrics: this.lyrics,
-          tab: this.tabs
-        });
-        this.error = "";
-      } catch (error) {
-        this.error = error.response.data.error;
-      }
+    async formSubmit() {
+      this.song = (await SongService.updateSong(
+        this.$route.params.id,
+        this.song
+      )).data;
     }
   }
 };
 </script>
-
-
