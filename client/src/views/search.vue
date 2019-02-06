@@ -12,7 +12,8 @@ import ShowSongs from "../components/ShowSongs";
 export default {
   data() {
     return {
-      songs: null
+      songs: null,
+      keyword: ""
     };
   },
   components: {
@@ -23,7 +24,11 @@ export default {
     const headers = {
       Authorization: "Bearer " + this.$store.state.token
     };
-    this.songs = (await SongService.getSongs(headers)).data;
+
+    this.songs = (await SongService.getSongs(
+      headers,
+      this.$route.query.s
+    )).data;
   }
 };
 </script>

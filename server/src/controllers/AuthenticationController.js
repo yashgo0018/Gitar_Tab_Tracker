@@ -2,20 +2,24 @@ const { User } = require("../models");
 const jwt = require("jsonwebtoken");
 const { authentication } = require("../config/config");
 
-function jwtSignUser(user) {
-  const Week = 60 * 60 * 24 * 7;
-  return jwt.sign(user, authentication.jwtSecreatKey, {
-    expiresIn: Week
-  });
+function makeResponse(user) {
+  const userJson = user.toJSON();
+  userJson.password = undefined;
+  return {
+    user: userJson,
+    token: jwt.sign(userJson, authentication.jwtSecreatKey, {
+      expiresIn: authentication.token_validity
+    }),
+    validity: authentication.token_validity
+  };
 }
 
 module.exports = {
   async register(req, res) {
     try {
       const user = await User.create(req.body);
-      res.send(user.toJSON());
+      res.send(makeResponse(user));
     } catch (err) {
-      console.log(err);
       res.status(400).send({
         error: "This email is already in use"
       });
@@ -29,20 +33,18 @@ module.exports = {
           email
         }
       });
+      if (!user) {
+        res.status(403).send({
+          error: "Login Credentials are Wrong."
+        });
+      }
       const isPasswordCorrect = await user.comparePassword(password);
-      console.log(isPasswordCorrect);
-      if (!user || !isPasswordCorrect) {
+      if (!isPasswordCorrect) {
         res.status(403).send({
           error: "Login Credentials are Wrong."
         });
       } else {
-        const UserJson = user.toJSON();
-        const UserToSend = { ...UserJson };
-        UserToSend.password = undefined;
-        res.send({
-          user: UserToSend,
-          token: jwtSignUser(UserJson)
-        });
+        res.send(makeResponse(user));
       }
     } catch (err) {
       console.log(err);

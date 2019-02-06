@@ -1,53 +1,85 @@
 <template>
-  <div>
-    <div class="row">
-      <h2 class="orange-text text-lighten-1 center-align">Sign In</h2>
-      <form class="col s12">
-        <div class="row">
-          <div class="input-field col s12">
-            <input id="username" v-model="username" type="text" class="validate">
-            <label for="username">Username</label>
-          </div>
-        </div>
-        <div class="row">
-          <div class="input-field col s12">
-            <input id="password" type="password" v-model="password" class="validate">
-            <label for="password">Password</label>
-          </div>
-        </div>
-        <button class="btn waves-effect orange btn-large center-align" @click="loginformSubmit">
-          Sign In
-          <i class="material-icons right">send</i>
-        </button>
-      </form>
-      <div v-html="error"/>
-    </div>
-  </div>
+  <fullpage>
+    <div class="display-4 font-weight-thin orange--text text--lighten-1 text-xs-center">Sign In</div>
+    <v-form>
+      <v-container fluid>
+        <v-layout row wrap>
+          <v-flex xs12>
+            <v-text-field
+              v-model="username"
+              :rules="[rules.required, rules.min]"
+              type="text"
+              name="username"
+              label="Username"
+            ></v-text-field>
+          </v-flex>
+          <v-flex xm12>
+            <v-text-field
+              @click:append="show1 = !show1"
+              v-model="password"
+              :append-icon="show1 ? 'visibility_off' : 'visibility'"
+              :rules="[rules.required, rules.min]"
+              :type="show1 ? 'text' : 'password'"
+              name="password"
+              label="Password"
+              counter
+            ></v-text-field>
+          </v-flex>
+          <v-flex xs12>
+            <v-btn xs12 @click="loginformSubmit" large class="orange wave-effect">
+              Sign In
+              <i class="pl-2 material-icons right">send</i>
+            </v-btn>
+          </v-flex>
+        </v-layout>
+      </v-container>
+    </v-form>
+    <div v-html="error"/>
+  </fullpage>
 </template>
 
 <script>
 import AuthenticationService from "@/services/AuthenticationService";
+import authProtection from "@/utils/check-not-authenticated.js";
+import fullpage from "@/templates/fullpage";
 export default {
   name: "login",
   data() {
     return {
       username: "",
+      show1: false,
       password: "",
-      error: ""
+      error: "",
+      rules: {
+        required: value => !!value || "Required.",
+        min: v => v.length >= 8 || "Min 8 characters",
+        emailMatch: () => "The email and password you entered don't match"
+      }
     };
+  },
+  components: {
+    fullpage
+  },
+  mounted() {
+    authProtection(this);
   },
   methods: {
     async loginformSubmit(e) {
       e.preventDefault();
       try {
-        const response = await AuthenticationService.login({
+        const data = (await AuthenticationService.login({
           email: this.username,
           password: this.password
-        });
-        console.log(response);
-        this.$store.dispatch("setToken", response.data.token);
-        this.$store.dispatch("setUser", response.data.user);
+        })).data;
+        //Storing the token and user information
+        this.$store.dispatch("setToken", data.token);
+        this.$cookies.set("auth-token", data.token, data.validity);
+        this.$cookies.set("auth-user", data.user, data.validity);
+        this.$store.dispatch("setUser", data.user);
+        //Removing the error that are stored previously
         this.error = "";
+        //redirecting the home page
+        this.$router.push("/");
       } catch (error) {
         this.error = error.response.data.error;
       }

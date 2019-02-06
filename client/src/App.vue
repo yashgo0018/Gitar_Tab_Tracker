@@ -1,20 +1,17 @@
 <template>
-  <div id="app">
-    <NavbarComponent/>
-    <main class="container">
+  <v-app>
+    <v-content>
       <router-view/>
-    </main>
-    <FooterComponent/>
-  </div>
+    </v-content>
+  </v-app>
 </template>
 
 <script>
-import FooterComponent from "@/components/_partials/FooterComponent";
-import NavbarComponent from "@/components/_partials/NavbarComponent";
 export default {
-  components: {
-    FooterComponent,
-    NavbarComponent
+  name: "App",
+  mounted() {
+    this.$store.dispatch("setToken", this.$cookies.get("auth-token"));
+    this.$store.dispatch("setUser", this.$cookies.get("auth-user"));
   }
 };
 </script>

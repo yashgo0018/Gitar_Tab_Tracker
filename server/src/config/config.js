@@ -16,6 +16,7 @@ module.exports = {
     }
   },
   authentication: {
-    jwtSecreatKey: process.env.jwtSecreatKey || "12A9926126B8CC39C8EED7F74C89C"
+    jwtSecreatKey: process.env.jwtSecreatKey || "12A9926126B8CC39C8EED7F74C89C",
+    token_validity: 60 * 60 * 24 * 2
   }
 };
